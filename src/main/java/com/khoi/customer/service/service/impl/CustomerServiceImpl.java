@@ -18,6 +18,7 @@ import com.khoi.stockproto.GetBestStockResponse;
 import com.khoi.stockproto.StockServiceGrpc;
 import com.khoi.stockproto.SubtractRequest;
 import com.khoi.stockproto.SubtractResponse;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -46,12 +47,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
   public Boolean createOrder(Checkout checkout) {
     CreateOrderResponse rs = orderService.createOrder(
         CreateOrderRequest.newBuilder().setCustomerId(checkout.getCustomer_id()).build());
+    List<CheckoutData> list = checkout.getProducts();
     if (rs.getOrderId() > 0) {
-      for (CheckoutData data : checkout.getProducts()) {
+      for (CheckoutData data : list) {
+        GetBestStockResponse bestStock = stockService.getBestStock(
+            GetBestStockRequest.newBuilder().setProductId(data.getProduct_id()).setAmount(data.getAmount()).build());
+        if (bestStock.getStockId() <= 0){
+          continue;
+        }
         GetPriceResponse priceResponse = priceService
             .getPrice(GetPriceRequest.newBuilder().setProductId(data.getProduct_id()).build());
-        GetBestStockResponse bestStock = stockService.getBestStock(
-            GetBestStockRequest.newBuilder().setProductId(data.getProduct_id()).build());
+
         //create order_item
         CreateOrderItemResponse orderItemResponse = orderService
             .createOrderItem(CreateOrderItemRequest.newBuilder().setOrderId(rs.getOrderId())
@@ -62,14 +68,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
             SubtractRequest.newBuilder().setStockId(bestStock.getStockId())
                 .setAmount(data.getAmount()).build());
         if (subtractResponse.getStockId() > 1) {
-          return true;
+          continue;
         } else {
           return false;
         }
       }
+      return true;
     } else {
       return false;
     }
-    return false;
   }
 }

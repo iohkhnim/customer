@@ -63,7 +63,11 @@ public class Controller {
   }
 
   @PostMapping("checkout")
-  public ResponseEntity<Checkout> checkout(@RequestBody Checkout data) {
-    return new ResponseEntity<Checkout>(data, HttpStatus.OK);
+  public ResponseEntity<Void> checkout(@RequestBody Checkout data) {
+    if(customerService.createOrder(data)) {
+      return new ResponseEntity<Void>(HttpStatus.OK);
+    } else {
+      return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+    }
   }
 }
