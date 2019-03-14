@@ -1,5 +1,6 @@
 package com.khoi.customer.controller;
 
+import com.khoi.customer.dto.Checkout;
 import com.khoi.customer.dto.Customer;
 import com.khoi.customer.service.ICustomerService;
 import java.util.List;
@@ -59,5 +60,10 @@ public class Controller {
     } else {
       return new ResponseEntity<Void>(HttpStatus.CONFLICT);
     }
+  }
+
+  @PostMapping("checkout")
+  public ResponseEntity<Checkout> checkout(@RequestBody Checkout data) {
+    return new ResponseEntity<Checkout>(data, HttpStatus.OK);
   }
 }
