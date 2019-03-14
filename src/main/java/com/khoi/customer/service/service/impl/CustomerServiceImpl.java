@@ -5,13 +5,19 @@ import com.khoi.customer.dto.Checkout;
 import com.khoi.customer.dto.CheckoutData;
 import com.khoi.customer.dto.Customer;
 import com.khoi.customer.service.ICustomerService;
+import com.khoi.orderproto.CreateOrderItemRequest;
+import com.khoi.orderproto.CreateOrderItemResponse;
 import com.khoi.orderproto.CreateOrderRequest;
 import com.khoi.orderproto.CreateOrderResponse;
 import com.khoi.orderproto.OrderServiceGrpc;
 import com.khoi.proto.GetPriceRequest;
 import com.khoi.proto.GetPriceResponse;
 import com.khoi.proto.PriceServiceGrpc;
+import com.khoi.stockproto.GetBestStockRequest;
+import com.khoi.stockproto.GetBestStockResponse;
 import com.khoi.stockproto.StockServiceGrpc;
+import com.khoi.stockproto.SubtractRequest;
+import com.khoi.stockproto.SubtractResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +50,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
       for (CheckoutData data : checkout.getProducts()) {
         GetPriceResponse priceResponse = priceService
             .getPrice(GetPriceRequest.newBuilder().setProductId(data.getProduct_id()).build());
+        GetBestStockResponse bestStock = stockService.getBestStock(
+            GetBestStockRequest.newBuilder().setProductId(data.getProduct_id()).build());
+        //create order_item
+        CreateOrderItemResponse orderItemResponse = orderService
+            .createOrderItem(CreateOrderItemRequest.newBuilder().setOrderId(rs.getOrderId())
+                .setProductId(data.getProduct_id()).setAmount(data.getAmount())
+                .setPrice(priceResponse.getPrice()).setStockId(bestStock.getStockId()).build());
+        //subtract stock
+        SubtractResponse subtractResponse = stockService.subtract(
+            SubtractRequest.newBuilder().setStockId(bestStock.getStockId())
+                .setAmount(data.getAmount()).build());
+        if (subtractResponse.getStockId() > 1) {
+          return true;
+        } else {
+          return false;
+        }
       }
     } else {
       return false;
