@@ -45,14 +45,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
 
   @Override
   public Boolean createOrder(Checkout checkout) {
+
+    //create an order
     CreateOrderResponse rs = orderService.createOrder(
         CreateOrderRequest.newBuilder().setCustomerId(checkout.getCustomer_id()).build());
     List<CheckoutData> list = checkout.getProducts();
-    if (rs.getOrderId() > 0) {
+    if (rs.getOrderId() > 0) { //check if order is successfully created
       for (CheckoutData data : list) {
         GetBestStockResponse bestStock = stockService.getBestStock(
-            GetBestStockRequest.newBuilder().setProductId(data.getProduct_id()).setAmount(data.getAmount()).build());
-        if (bestStock.getStockId() <= 0){
+            GetBestStockRequest.newBuilder().setProductId(data.getProduct_id())
+                .setAmount(data.getAmount()).build());
+        if (bestStock.getStockId() <= 0) { //if there's not enough stock
           continue;
         }
         GetPriceResponse priceResponse = priceService
@@ -67,7 +70,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
         SubtractResponse subtractResponse = stockService.subtract(
             SubtractRequest.newBuilder().setStockId(bestStock.getStockId())
                 .setAmount(data.getAmount()).build());
-        if (subtractResponse.getStockId() > 1) {
+        if (subtractResponse.getStockId() > 1) { //subtract is completed
           continue;
         } else {
           return false;
