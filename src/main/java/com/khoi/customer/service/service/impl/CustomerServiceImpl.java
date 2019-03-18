@@ -5,11 +5,10 @@ import com.khoi.customer.dto.Checkout;
 import com.khoi.customer.dto.CheckoutData;
 import com.khoi.customer.dto.Customer;
 import com.khoi.customer.service.ICustomerService;
-import com.khoi.orderproto.*;
-import com.khoi.proto.GetPriceRequest;
-import com.khoi.proto.GetPriceResponse;
-import com.khoi.proto.PriceServiceGrpc;
-import com.khoi.stockproto.*;
+import com.khoi.orderproto.CheckoutDataProto;
+import com.khoi.orderproto.CreateOrderRequest;
+import com.khoi.orderproto.CreateOrderResponse;
+import com.khoi.orderproto.OrderServiceGrpc;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -20,22 +19,11 @@ import java.util.List;
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     implements ICustomerService {
 
-  @Qualifier("priceService")
-  private final PriceServiceGrpc.PriceServiceBlockingStub priceService;
-
-  @Qualifier("stockService")
-  private final StockServiceGrpc.StockServiceBlockingStub stockService;
-
   @Qualifier("orderService")
   private final OrderServiceGrpc.OrderServiceBlockingStub orderService;
 
-  public CustomerServiceImpl(
-      OrderServiceGrpc.OrderServiceBlockingStub orderService,
-      PriceServiceGrpc.PriceServiceBlockingStub priceService,
-      StockServiceGrpc.StockServiceBlockingStub stockService) {
+  public CustomerServiceImpl(OrderServiceGrpc.OrderServiceBlockingStub orderService) {
     this.orderService = orderService;
-    this.priceService = priceService;
-    this.stockService = stockService;
   }
 
   @Override
