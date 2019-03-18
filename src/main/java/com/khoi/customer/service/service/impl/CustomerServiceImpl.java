@@ -19,6 +19,7 @@ import com.khoi.stockproto.StockServiceGrpc;
 import com.khoi.stockproto.SubtractRequest;
 import com.khoi.stockproto.SubtractResponse;
 import java.util.List;
+import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +51,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
     CreateOrderResponse rs = orderService.createOrder(
         CreateOrderRequest.newBuilder().setCustomerId(checkout.getCustomer_id()).build());
     List<CheckoutData> list = checkout.getProducts();
+
     if (rs.getOrderId() > 0) { //check if order is successfully created
       for (CheckoutData data : list) {
         GetBestStockResponse bestStock = stockService.getBestStock(
@@ -66,6 +68,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer> impl
             .createOrderItem(CreateOrderItemRequest.newBuilder().setOrderId(rs.getOrderId())
                 .setProductId(data.getProduct_id()).setAmount(data.getAmount())
                 .setPrice(priceResponse.getPrice()).setStockId(bestStock.getStockId()).build());
+
         //subtract stock
         SubtractResponse subtractResponse = stockService.subtract(
             SubtractRequest.newBuilder().setStockId(bestStock.getStockId())
