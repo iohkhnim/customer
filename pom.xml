@@ -40,6 +40,10 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.khoi</groupId>
       <artifactId>basecrud</artifactId>
       <version>0.0.1-SNAPSHOT</version>

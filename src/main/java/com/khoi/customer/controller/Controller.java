@@ -2,6 +2,7 @@ package com.khoi.customer.controller;
 
 import com.khoi.customer.dto.Checkout;
 import com.khoi.customer.dto.Customer;
+import com.khoi.customer.dto.LoginData;
 import com.khoi.customer.service.ICustomerService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,4 +71,9 @@ public class Controller {
       return new ResponseEntity<Void>(HttpStatus.CONFLICT);
     }
   }
+
+  /*@PostMapping("login")
+  public ResponseEntity<Void> login (@RequestBody LoginData loginData) {
+    return new ResponseEntity<Void>(HttpStatus.OK);
+  }*/
 }
