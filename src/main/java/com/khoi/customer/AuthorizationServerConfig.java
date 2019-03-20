@@ -18,6 +18,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
   static final String CLIEN_ID = "devglan-client";
   static final String CLIENT_SECRET = "devglan-secret";
+  //static final String CLIENT_SECRET = "$2a$04$e/c1/RfsWuThaWFCrcCuJeoyvwCV0URN/6Pn9ZFlrtIWaU/vj/BfG";
   static final String GRANT_TYPE_PASSWORD = "password";
   static final String AUTHORIZATION_CODE = "authorization_code";
   static final String REFRESH_TOKEN = "refresh_token";
@@ -25,13 +26,13 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
   static final String SCOPE_READ = "read";
   static final String SCOPE_WRITE = "write";
   static final String TRUST = "trust";
-  static final int ACCESS_TOKEN_VALIDITY_SECONDS = 1 * 60 * 60;
-  static final int FREFRESH_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
+  static final int ACCESS_TOKEN_VALIDITY_SECONDS = 1*60*60;
+  static final int FREFRESH_TOKEN_VALIDITY_SECONDS = 6*60*60;
 
   @Autowired
   private AuthenticationManager authenticationManager;
 
-/*
+  @Bean
   public JwtAccessTokenConverter accessTokenConverter() {
     JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
     converter.setSigningKey("as466gf");
@@ -41,7 +42,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
   @Bean
   public TokenStore tokenStore() {
     return new JwtTokenStore(accessTokenConverter());
-  }*/
+  }
 
   @Override
   public void configure(ClientDetailsServiceConfigurer configurer) throws Exception {
@@ -50,17 +51,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         .inMemory()
         .withClient(CLIEN_ID)
         .secret(CLIENT_SECRET)
-        .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT)
+        .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT )
         .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)
         .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS).
         refreshTokenValiditySeconds(FREFRESH_TOKEN_VALIDITY_SECONDS);
   }
-/*
+
   @Override
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
     endpoints.tokenStore(tokenStore())
         .authenticationManager(authenticationManager)
         .accessTokenConverter(accessTokenConverter());
   }
-*/
 }
