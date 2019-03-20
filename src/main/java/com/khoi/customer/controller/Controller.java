@@ -5,16 +5,14 @@ import com.khoi.customer.dto.Customer;
 import com.khoi.customer.dto.LoginData;
 import com.khoi.customer.service.ICustomerService;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.web.bind.annotation.*;
 
 @org.springframework.stereotype.Controller
 @RequestMapping("customer")
@@ -22,6 +20,9 @@ public class Controller {
 
   @Autowired
   ICustomerService customerService;
+
+  @Autowired
+  private AuthorizationServerTokenServices tokenServices;
 
   @PostMapping("create")
   public ResponseEntity<Void> create(@RequestBody Customer customer) {
@@ -70,6 +71,17 @@ public class Controller {
     } else {
       return new ResponseEntity<Void>(HttpStatus.CONFLICT);
     }
+  }
+
+  @RequestMapping(value = "/getSomething", method = RequestMethod.GET)
+  public String getSection(OAuth2Authentication authentication) {
+    Map<String, Object> additionalInfo = tokenServices.getAccessToken(authentication).getAdditionalInformation();
+
+    String customInfo = (String) additionalInfo.get("customInfo");
+
+    // Play with authorities
+
+    return customInfo;
   }
 
   /*@PostMapping("login")
