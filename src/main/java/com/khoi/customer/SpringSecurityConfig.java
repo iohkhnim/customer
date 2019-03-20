@@ -1,10 +1,12 @@
 package com.khoi.customer;
 
 
-import com.khoi.customer.service.service.impl.UserServiceImpl;
+import com.khoi.customer.service.service.impl.CustomUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,14 +16,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
-  //private IUserService userService;
-  private UserServiceImpl userService;
-  private String username;
-  private String password;
+  private CustomUserDetailService customUserDetailService;
 
+  @Bean
+  public PasswordEncoder encoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Override
+  @Autowired
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(customUserDetailService).passwordEncoder(encoder());
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -29,21 +39,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         .csrf().disable()
         .authorizeRequests().antMatchers("/customer/login").permitAll()
         .anyRequest().authenticated()
-        .and().formLogin().loginPage("/customer/login").defaultSuccessUrl("/customer/findAll")
-        .usernameParameter("username")
-        .passwordParameter("password")
-        .and().httpBasic()
         .and().sessionManagement().disable();
-  }
-
-  public PasswordEncoder encoder() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @Autowired
-  public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication().withUser("hiepsi1211").password(encoder().encode("123456"))
-        .roles("USER");
   }
 
   @Override
