@@ -7,6 +7,7 @@ import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
@@ -22,6 +23,7 @@ public class User extends baseDTO implements Serializable {
   @Column(name = "customer_id")
   private int customer_id;
 
+  @Transient
   private Collection<GrantedAuthority> grantedAuthoritiesList = new ArrayList<>();
 
   public String getUsername() {

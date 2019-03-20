@@ -24,7 +24,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> {
     if (user == null) {
       throw new UsernameNotFoundException("User not found");
     }
-    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_USER");
+    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
     grantedAuthoritiesList.add(grantedAuthority);
     user.setGrantedAuthoritiesList(grantedAuthoritiesList);
     return user;
