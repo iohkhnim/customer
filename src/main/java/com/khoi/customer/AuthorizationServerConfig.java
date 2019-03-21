@@ -3,17 +3,14 @@ package com.khoi.customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.provider.token.*;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableAuthorizationServer
@@ -29,8 +26,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
   static final String SCOPE_READ = "read";
   static final String SCOPE_WRITE = "write";
   static final String TRUST = "trust";
-  static final int ACCESS_TOKEN_VALIDITY_SECONDS = 1*60*60;
-  static final int FREFRESH_TOKEN_VALIDITY_SECONDS = 6*60*60;
+  static final int ACCESS_TOKEN_VALIDITY_SECONDS = 1 * 60 * 60;
+  static final int FREFRESH_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
 
   @Autowired
   private AuthenticationManager authenticationManager;
@@ -54,7 +51,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         .inMemory()
         .withClient(CLIEN_ID)
         .secret(CLIENT_SECRET)
-        .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT )
+        .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT)
         .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)
         .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS).
         refreshTokenValiditySeconds(FREFRESH_TOKEN_VALIDITY_SECONDS);
@@ -62,27 +59,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
   @Override
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-
-    //TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
-    //enhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
-
     endpoints.tokenStore(tokenStore())
-            .tokenEnhancer(tokenEnhancer())
         .authenticationManager(authenticationManager)
         .accessTokenConverter(accessTokenConverter());
-  }
-
-  @Bean
-  @Primary
-  public AuthorizationServerTokenServices tokenServices() {
-    DefaultTokenServices tokenServices = new DefaultTokenServices();
-    // ...
-    tokenServices.setTokenEnhancer(tokenEnhancer());
-    return tokenServices;
-  }
-
-  @Bean
-  public TokenEnhancer tokenEnhancer() {
-    return new CustomTokenEnhancer();
   }
 }

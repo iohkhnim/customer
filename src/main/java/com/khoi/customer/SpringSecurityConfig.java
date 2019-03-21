@@ -34,7 +34,7 @@ import javax.annotation.Resource;
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Resource(name = "customUserService")
-  private CustomUserDetailService userDetailsService;
+  private UserDetailsService userDetailsService;
 
   @Override
   @Bean

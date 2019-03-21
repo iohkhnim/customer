@@ -18,4 +18,12 @@ public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO 
     query.setParameter("username", username);
     return (User) query.setMaxResults(1).getSingleResult();
   }
+
+  @Override
+  public int getCustomerIdByUsername(String username) {
+    String hql = "SELECT customer_id FROM User u WHERE u.username = :username";
+    Query query = entityManager.createQuery(hql);
+    query.setParameter("username", username);
+    return Integer.parseInt(query.setMaxResults(1).getSingleResult().toString());
+  }
 }
