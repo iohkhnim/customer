@@ -67,13 +67,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   }
 
   public List<String> trackingOrders(String username) {
-    int custmer_id = userService.getCustomerIdByUsername(username);
+    int customer_id = userService.getCustomerIdByUsername(username);
 
     List<GetOrdersResponse> ordersResponsesList = new ArrayList<>();
 
     //get order list
     Iterable<GetOrdersResponse> iterableResponse = toIterable(orderService
-        .getOrders(GetOrdersRequest.newBuilder().setCustomerId(custmer_id).build()));
+        .getOrders(GetOrdersRequest.newBuilder().setCustomerId(customer_id).build()));
 
     iterableResponse.forEach(ordersResponsesList::add);
 

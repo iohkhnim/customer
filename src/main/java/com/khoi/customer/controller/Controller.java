@@ -81,7 +81,7 @@ public class Controller {
   @GetMapping("orders")
   public ResponseEntity<List<String>> getOrders() {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    return null;
+    return new ResponseEntity<List<String>>(customerService.trackingOrders(username), HttpStatus.OK);
   }
 
   @RequestMapping(value = "getSomething", method = RequestMethod.GET)
