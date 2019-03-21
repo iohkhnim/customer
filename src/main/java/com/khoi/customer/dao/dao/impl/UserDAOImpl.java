@@ -21,7 +21,7 @@ public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO 
 
   @Override
   public int getCustomerIdByUsername(String username) {
-    String hql = "SELECT customer_id FROM User u WHERE u.username = :username";
+    String hql = "SELECT u.customer_id FROM User u WHERE u.username = :username";
     Query query = entityManager.createQuery(hql);
     query.setParameter("username", username);
     return Integer.parseInt(query.setMaxResults(1).getSingleResult().toString());

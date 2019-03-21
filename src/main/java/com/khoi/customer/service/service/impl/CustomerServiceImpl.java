@@ -5,6 +5,7 @@ import com.khoi.basecrud.service.service.impl.BaseServiceImpl;
 import com.khoi.customer.dto.Checkout;
 import com.khoi.customer.dto.CheckoutData;
 import com.khoi.customer.dto.Customer;
+import com.khoi.customer.dto.TrackingOrderDetails;
 import com.khoi.customer.service.ICustomerService;
 import com.khoi.customer.service.IUserService;
 import com.khoi.orderproto.CheckoutDataProto;
@@ -13,6 +14,8 @@ import com.khoi.orderproto.CreateOrderResponse;
 import com.khoi.orderproto.GetOrdersRequest;
 import com.khoi.orderproto.GetOrdersResponse;
 import com.khoi.orderproto.OrderServiceGrpc;
+import com.khoi.orderproto.TrackingOrderDetailsRequest;
+import com.khoi.orderproto.TrackingOrderDetailsResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +44,26 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
         return iterator;
       }
     };
+  }
+
+  @Override
+  public TrackingOrderDetails trackingOrderDetails(String username, int order_id) {
+    int customer_id = userService.getCustomerIdByUsername(username);
+    TrackingOrderDetailsResponse response = orderService.trackingOrderDetails(
+        TrackingOrderDetailsRequest.newBuilder().setCustomerId(customer_id).setOrderId(order_id)
+            .build());
+    if(response.getOrder() != null && response.getOrderItem(0) != null) {
+      //map TrackingOrderDetails and TrackingOrderDetailsResponse
+      TrackingOrderDetails trackingOrderDetails = null;
+      trackingOrderDetails.setOrder(new JsonFormat().printToString(response.getOrder()));
+      List<String> list = response.getOrderItemList().stream()
+          .map(s -> new JsonFormat().printToString(s)).collect(
+              Collectors.toList());
+      trackingOrderDetails.setOrderDetails(list);
+      return trackingOrderDetails;
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -80,6 +103,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     List<String> ordersResponseStringList = ordersResponsesList.stream()
         .map(s -> new JsonFormat().printToString(s)).collect(
             Collectors.toList());
-    return  ordersResponseStringList;
+    return ordersResponseStringList;
   }
 }
