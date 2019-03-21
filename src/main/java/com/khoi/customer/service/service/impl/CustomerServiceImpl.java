@@ -54,7 +54,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
             .build());
     if(response.getOrder() != null && response.getOrderItem(0) != null) {
       //map TrackingOrderDetails and TrackingOrderDetailsResponse
-      TrackingOrderDetails trackingOrderDetails = null;
+      TrackingOrderDetails trackingOrderDetails = new TrackingOrderDetails();
       trackingOrderDetails.setOrder(new JsonFormat().printToString(response.getOrder()));
       List<String> list = response.getOrderItemList().stream()
           .map(s -> new JsonFormat().printToString(s)).collect(
@@ -89,6 +89,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     return rs.getOrderId() > 0;
   }
 
+  @Override
   public List<String> trackingOrders(String username) {
     int customer_id = userService.getCustomerIdByUsername(username);
 
