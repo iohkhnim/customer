@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service(value = "customUserService")
+@Service(value = "customUserDetailsService")
 public class CustomUserDetailService implements UserDetailsService {
 
   @Autowired

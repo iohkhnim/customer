@@ -1,8 +1,6 @@
-package com.khoi.customer;
+package com.khoi.customer.Config;
 
 import com.khoi.orderproto.OrderServiceGrpc;
-import com.khoi.proto.PriceServiceGrpc;
-import com.khoi.stockproto.StockServiceGrpc;
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,15 +1,23 @@
 package com.khoi.customer.controller;
 
-import com.khoi.customer.dto.Checkout;
-import com.khoi.customer.dto.Customer;
-import com.khoi.customer.dto.TrackingOrderDetails;
+import com.khoi.customer.Util.TokenUtil;
+import com.khoi.customer.dto.*;
 import com.khoi.customer.service.ICustomerService;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +34,11 @@ public class Controller {
   ICustomerService customerService;
 
   @Autowired
-  private AuthorizationServerTokenServices tokenServices;
+  private AuthenticationManager authenticationManager;
+
+  @Autowired
+  @Qualifier("customUserDetailsService")
+  private UserDetailsService customUserDetailsService;
 
   @PostMapping("create")
   public ResponseEntity<Void> create(@RequestBody Customer customer) {
@@ -91,8 +103,33 @@ public class Controller {
     return new ResponseEntity<TrackingOrderDetails>(
         customerService.trackingOrderDetails(username, order_id), HttpStatus.OK);
   }
-  /*@PostMapping("login")
-  public ResponseEntity<Void> login (@RequestBody LoginData loginData) {
-    return new ResponseEntity<Void>(HttpStatus.OK);
-  }*/
+  @PostMapping("login")
+  public ResponseEntity<UserTransfer> login (@RequestBody LoginData loginData) {
+    try {
+      String username = loginData.getUsername();
+      String password = loginData.getPassword();
+
+      UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+      Authentication authentication = this.authenticationManager.authenticate(token);
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+      UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
+
+      List<String> roles = new ArrayList<>();
+
+      System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
+
+      for (GrantedAuthority authority : userDetails.getAuthorities()) {
+        roles.add(authority.toString());
+      }
+
+      return new ResponseEntity<UserTransfer>(new UserTransfer(userDetails.getUsername(), roles,
+              TokenUtil.createToken(userDetails), HttpStatus.OK), HttpStatus.OK);
+
+    } catch (BadCredentialsException bce) {
+      return new ResponseEntity<UserTransfer>(new UserTransfer(), HttpStatus.NO_CONTENT);
+
+    } catch (Exception e) {
+      return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+    }
+  }
 }
