@@ -1,4 +1,4 @@
-package com.khoi.customer.Config;
+package com.khoi.customer.config;
 
 import com.khoi.customer.Util.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;

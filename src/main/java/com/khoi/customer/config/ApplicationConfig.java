@@ -1,4 +1,4 @@
-package com.khoi.customer.Config;
+package com.khoi.customer.config;
 
 import com.khoi.orderproto.OrderServiceGrpc;
 import io.grpc.Channel;
