@@ -1,4 +1,4 @@
-package com.khoi.customer.Util;
+package com.khoi.customer.config;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Hex;

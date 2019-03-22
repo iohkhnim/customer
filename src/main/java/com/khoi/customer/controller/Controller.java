@@ -1,6 +1,6 @@
 package com.khoi.customer.controller;
 
-import com.khoi.customer.Util.TokenUtil;
+import com.khoi.customer.config.TokenUtil;
 import com.khoi.customer.dto.*;
 import com.khoi.customer.service.ICustomerService;
 
@@ -115,8 +115,6 @@ public class Controller {
       UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
 
       List<String> roles = new ArrayList<>();
-
-      System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
 
       for (GrantedAuthority authority : userDetails.getAuthorities()) {
         roles.add(authority.toString());
