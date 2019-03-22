@@ -1,9 +1,12 @@
 package com.khoi.customer.controller;
 
 import com.khoi.customer.config.TokenUtil;
-import com.khoi.customer.dto.*;
+import com.khoi.customer.dto.Checkout;
+import com.khoi.customer.dto.Customer;
+import com.khoi.customer.dto.LoginData;
+import com.khoi.customer.dto.TrackingOrderDetails;
+import com.khoi.customer.dto.UserTransfer;
 import com.khoi.customer.service.ICustomerService;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,12 @@ public class Controller {
   @Qualifier("customUserDetailsService")
   private UserDetailsService customUserDetailsService;
 
+  /**
+   * <p>An API endpoint (/customer/create) with method POST for creating Customer</p>
+   *
+   * @param customer Information of the new customer in Customer type
+   * @return Http status
+   */
   @PostMapping("create")
   public ResponseEntity<Void> create(@RequestBody Customer customer) {
     Boolean flag = customerService.create(customer);
@@ -50,6 +59,12 @@ public class Controller {
     }
   }
 
+  /**
+   * <p>An API endpoint (/customer/update) with method PUT for updating Customer</p>
+   *
+   * @param customer Information of the customer to be updated in Customer type
+   * @return Http status
+   */
   @PutMapping("update")
   public ResponseEntity<Void> update(@RequestBody Customer customer) {
     Boolean flag = customerService.update(customer);
@@ -60,17 +75,36 @@ public class Controller {
     }
   }
 
+  /**
+   * <p>An API endpoint (/customer/findById/{id}) with method GET for getting Customer information
+   * of provided customer ID</p>
+   *
+   * @param id Information of the customer to be updated in Customer type
+   * @return Customer information in JSON
+   */
   @GetMapping("findById/{id}")
   public ResponseEntity<Customer> findByid(@PathVariable("id") int id) {
     Customer obj = customerService.findByid(id);
     return new ResponseEntity<Customer>(obj, HttpStatus.OK);
   }
 
+  /**
+   * <p>An API endpoint (/customer/findAll) with method GET for getting all Customers information
+   * </p>
+   *
+   * @return All customers information
+   */
   @GetMapping("findAll")
   public ResponseEntity<List<Customer>> findAll() {
     return new ResponseEntity<List<Customer>>(customerService.findAll(), HttpStatus.OK);
   }
 
+  /**
+   * <p>An API endpoint (/customer/delete/{id}) with method DELETE for deleting a customer</p>
+   *
+   * @param id Id of the customer to be deleted
+   * @return Http status
+   */
   @DeleteMapping("delete/{id}")
   public ResponseEntity<Void> delete(@PathVariable("id") int id) {
     if (customerService.delete(id)) {
@@ -80,6 +114,12 @@ public class Controller {
     }
   }
 
+  /**
+   * <p>An API endpoint (/customer/checkout) with method POST for checking out an order</p>
+   *
+   * @param data Contains customer ID, list of products and amount
+   * @return Https status
+   */
   @PostMapping("checkout")
   public ResponseEntity<Void> checkout(@RequestBody Checkout data) {
     if (customerService.createOrder(data)) {
@@ -89,6 +129,12 @@ public class Controller {
     }
   }
 
+  /**
+   * <p>An API endpoint (/customer/orders) with method GET for getting all orders information of
+   * currently logged in customer</p>
+   *
+   * @return All orders information of logged in customer
+   */
   @GetMapping("orders")
   public ResponseEntity<List<String>> getOrders() {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -96,20 +142,35 @@ public class Controller {
         HttpStatus.OK);
   }
 
-  @GetMapping("order/{order-id}")
+  /**
+   * <p>An API endpoint (/customer/order/{order-id}) with method GET for getting a order information
+   * and all order items belong to that order of currently logged in customer</p>
+   *
+   * @param order_id ID of an order placed by logged customer
+   * @return An order information and all order items belong to it of logged in customer
+   */
+  @GetMapping("order/{order_id}")
   public ResponseEntity<TrackingOrderDetails> trackingOrderDetails(
-      @PathVariable("order-id") int order_id) {
+      @PathVariable("order_id") int order_id) {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     return new ResponseEntity<TrackingOrderDetails>(
         customerService.trackingOrderDetails(username, order_id), HttpStatus.OK);
   }
+
+  /**
+   * <p>An API endpoint (/customer/login) with method POST for validating given username and password</p>
+   *
+   * @param loginData Contain username and password provided by customer
+   * @return An access token
+   */
   @PostMapping("login")
-  public ResponseEntity<UserTransfer> login (@RequestBody LoginData loginData) {
+  public ResponseEntity<UserTransfer> login(@RequestBody LoginData loginData) {
     try {
       String username = loginData.getUsername();
       String password = loginData.getPassword();
 
-      UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+      UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,
+          password);
       Authentication authentication = this.authenticationManager.authenticate(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
       UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
@@ -121,7 +182,7 @@ public class Controller {
       }
 
       return new ResponseEntity<UserTransfer>(new UserTransfer(userDetails.getUsername(), roles,
-              TokenUtil.createToken(userDetails), HttpStatus.OK), HttpStatus.OK);
+          TokenUtil.createToken(userDetails), HttpStatus.OK), HttpStatus.OK);
 
     } catch (BadCredentialsException bce) {
       return new ResponseEntity<UserTransfer>(new UserTransfer(), HttpStatus.NO_CONTENT);
