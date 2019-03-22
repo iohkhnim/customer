@@ -37,6 +37,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     this.orderService = orderService;
   }
 
+  /**
+   *
+   * @param iterator Iterator object
+   * @param <T> Type of iterator object
+   * @return Iterable object with the same type of provided Iterator object
+   */
   private static <T> Iterable<T> toIterable(final Iterator<T> iterator) {
     return new Iterable<T>() {
       @Override
@@ -46,13 +52,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     };
   }
 
+  /**
+   *<p>This method helps user to track their order
+   * User can only track their own order</p>
+   * @param username Currently logged in user
+   * @param order_id Order id that user wishes to track
+   * @return An order with information that match provided order id and all the order items belong to that order
+   */
   @Override
   public TrackingOrderDetails trackingOrderDetails(String username, int order_id) {
     int customer_id = userService.getCustomerIdByUsername(username);
     TrackingOrderDetailsResponse response = orderService.trackingOrderDetails(
         TrackingOrderDetailsRequest.newBuilder().setCustomerId(customer_id).setOrderId(order_id)
             .build());
-    if(response.getOrder() != null && response.getOrderItem(0) != null) {
+    if (response.getOrder() != null && response.getOrderItem(0) != null) {
       //map TrackingOrderDetails and TrackingOrderDetailsResponse
       TrackingOrderDetails trackingOrderDetails = new TrackingOrderDetails();
       trackingOrderDetails.setOrder(new JsonFormat().printToString(response.getOrder()));
@@ -66,6 +79,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     }
   }
 
+  /**
+   *
+   * @param checkout Contains customer id and list of products
+   * @return A boolean value according to the result of creating this order
+   */
   @Override
   public Boolean createOrder(Checkout checkout) {
     List<CheckoutData> list = checkout.getProducts();
@@ -89,6 +107,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     return rs.getOrderId() > 0;
   }
 
+  /**
+   *
+   * @param username Username of currently logged in customer
+   * @return All orders were placed by provided customer
+   */
   @Override
   public List<String> trackingOrders(String username) {
     int customer_id = userService.getCustomerIdByUsername(username);

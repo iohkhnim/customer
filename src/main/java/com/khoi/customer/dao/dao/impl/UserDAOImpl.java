@@ -11,6 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO {
 
+  /**
+   *  <p>Retrieve user's information with provided username</p>
+   * @param username Username of customer
+   * @return Customer's information
+   */
   @Override
   public User findByUsername(String username) {
     String hql = "FROM User u WHERE u.username = :username";
@@ -19,6 +24,11 @@ public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO 
     return (User) query.setMaxResults(1).getSingleResult();
   }
 
+  /**
+   *  <p>Retrieve Customer ID of provided username</p>
+   * @param username username of customer
+   * @return id of that username
+   */
   @Override
   public int getCustomerIdByUsername(String username) {
     String hql = "SELECT u.customer_id FROM User u WHERE u.username = :username";

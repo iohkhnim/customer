@@ -12,6 +12,12 @@ public class CustomUserDetailService implements UserDetailsService {
   @Autowired
   UserServiceImpl userService;
 
+  /**
+   *  <p>This method receive information from getUserDetails method then return with customUser type</p>
+   * @param username Username that is provided by customer
+   * @return User's information
+   * @throws UsernameNotFoundException Throws an exception if the username is not available in database
+   */
   @Override
   public CustomUser loadUserByUsername(final String username) throws UsernameNotFoundException {
     com.khoi.customer.dto.User userDTO = null;
