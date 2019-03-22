@@ -1,0 +1,8 @@
+com.khoi.customer
+com.khoi.customer.config
+com.khoi.customer.controller
+com.khoi.customer.dao
+com.khoi.customer.dao.dao.impl
+com.khoi.customer.dto
+com.khoi.customer.service
+com.khoi.customer.service.service.impl
