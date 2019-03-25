@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO {
 
   /**
-   *  <p>Retrieve user's information with provided username</p>
-   * @param username Username of customer
-   * @return Customer's information
+   * {@inheritDoc}
    */
   @Override
   public User findByUsername(String username) {
@@ -25,9 +23,7 @@ public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO 
   }
 
   /**
-   *  <p>Retrieve Customer ID of provided username</p>
-   * @param username username of customer
-   * @return id of that username
+   * {@inheritDoc}
    */
   @Override
   public int getCustomerIdByUsername(String username) {

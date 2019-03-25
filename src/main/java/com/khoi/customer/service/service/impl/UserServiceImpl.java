@@ -18,11 +18,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
   @Autowired
   private IUserDAO userDAO;
 
-  /**
-   * <p>This methods provide customer's information belongs to username provided</p>
-   * @param username Username provided by customer
-   * @return All information of that customer
-   */
+
   public User getUserDetails(String username) {
     Collection<GrantedAuthority> grantedAuthoritiesList = new ArrayList<>();
     User user = userDAO.findByUsername(username);
@@ -36,6 +32,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
     return user;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public int getCustomerIdByUsername(String username) {
     return userDAO.getCustomerIdByUsername(username);
   }

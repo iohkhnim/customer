@@ -38,7 +38,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   }
 
   /**
-   *
    * @param iterator Iterator object
    * @param <T> Type of iterator object
    * @return Iterable object with the same type of provided Iterator object
@@ -53,11 +52,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   }
 
   /**
-   *<p>This method helps user to track their order
-   * User can only track their own order</p>
-   * @param username Currently logged in user
-   * @param order_id Order id that user wishes to track
-   * @return An order with information that match provided order id and all the order items belong to that order
+   * {@inheritDoc}
    */
   @Override
   public TrackingOrderDetails trackingOrderDetails(String username, int order_id) {
@@ -80,9 +75,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   }
 
   /**
-   *
-   * @param checkout Contains customer id and list of products
-   * @return A boolean value according to the result of creating this order
+   * {@inheritDoc}
    */
   @Override
   public Boolean createOrder(Checkout checkout) {
@@ -108,9 +101,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   }
 
   /**
-   *
-   * @param username Username of currently logged in customer
-   * @return All orders were placed by provided customer
+   * {@inheritDoc}
    */
   @Override
   public List<String> trackingOrders(String username) {
