@@ -143,8 +143,8 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/order/{order-id}) with method GET for getting a order information
-   * and all order items belong to that order of currently logged in customer</p>
+   * <p>An API endpoint (/customer/order/{order-id}) with method GET for getting a order
+   * information and all order items belong to that order of currently logged in customer</p>
    *
    * @param order_id ID of an order placed by logged customer
    * @return An order information and all order items belong to it of logged in customer
@@ -158,7 +158,8 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/login) with method POST for validating given username and password</p>
+   * <p>An API endpoint (/customer/login) with method POST for validating given username and
+   * password</p>
    *
    * @param loginData Contain username and password provided by customer
    * @return An access token
@@ -191,4 +192,11 @@ public class Controller {
       return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
     }
   }
+
+  /*@GetMapping("login/oauth/client/google")
+  public ResponseEntity<String> loginWithGoogle(
+      @RequestBody OAuth2AuthenticationToken authenticationToken) {
+    String name = authenticationToken.getName();
+    return new ResponseEntity<>(name, HttpStatus.OK);
+  }*/
 }

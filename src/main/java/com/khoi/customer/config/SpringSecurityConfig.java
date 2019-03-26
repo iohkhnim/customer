@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -33,10 +36,18 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     http.csrf()
         .disable()
         .authorizeRequests()
-        .antMatchers("/", "/customer/login")
+        .antMatchers("/",
+            "/customer/login") //, "/customer/login/oauth2/client/google") needed if customize login page
         .permitAll()
         .anyRequest()
-        .authenticated();
+        .authenticated()
+        .and()
+        .oauth2Login();
+        //needed if customize login page
+        /*.loginPage("/customer/login/oauth2/client/google")
+        .authorizationEndpoint()
+        .baseUri("/oauth2/authorize/google")
+        .authorizationRequestRepository(authorizationRequestRepository());*/
     http.apply(authTokenConfig);
   }
 
@@ -56,5 +67,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   public AuthenticationManager authenticationManagerBean() throws Exception {
     return super.authenticationManagerBean();
+  }
+
+  @Bean
+  public AuthorizationRequestRepository<OAuth2AuthorizationRequest>
+  authorizationRequestRepository() {
+
+    return new HttpSessionOAuth2AuthorizationRequestRepository();
   }
 }
