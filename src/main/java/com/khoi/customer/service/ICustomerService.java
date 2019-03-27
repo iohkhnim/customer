@@ -5,6 +5,7 @@ import com.khoi.customer.dto.Checkout;
 import com.khoi.customer.dto.Customer;
 import com.khoi.customer.dto.TrackingOrderDetails;
 import java.util.List;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 public interface ICustomerService extends IBaseService<Customer, Integer> {
 
@@ -30,4 +31,11 @@ public interface ICustomerService extends IBaseService<Customer, Integer> {
    * to that order
    */
   TrackingOrderDetails trackingOrderDetails(String username, int order_id);
+
+  /**
+   * <p>This method gets user's name from user information endpoint given by Google</p>
+   * @param authenticationToken Access token given by Google
+   * @return Return user's name
+   */
+  String getNameWhenLoginWithGoogle(OAuth2AuthenticationToken authenticationToken);
 }

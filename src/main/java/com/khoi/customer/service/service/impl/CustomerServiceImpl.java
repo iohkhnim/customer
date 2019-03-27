@@ -19,10 +19,20 @@ import com.khoi.orderproto.TrackingOrderDetailsResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
@@ -32,6 +42,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   private final OrderServiceGrpc.OrderServiceBlockingStub orderService;
   @Autowired
   private IUserService userService;
+  @Autowired
+  private OAuth2AuthorizedClientService authorizedClientService;
 
   public CustomerServiceImpl(OrderServiceGrpc.OrderServiceBlockingStub orderService) {
     this.orderService = orderService;
@@ -119,5 +131,32 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
         .map(s -> new JsonFormat().printToString(s)).collect(
             Collectors.toList());
     return ordersResponseStringList;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getNameWhenLoginWithGoogle(OAuth2AuthenticationToken authenticationToken) {
+    OAuth2AuthorizedClient client = authorizedClientService
+        .loadAuthorizedClient(authenticationToken.getAuthorizedClientRegistrationId(),
+            authenticationToken.getName());
+
+    String userInfoEndpointUri = client.getClientRegistration().getProviderDetails()
+        .getUserInfoEndpoint().getUri();
+
+    if (!StringUtils.isEmpty(userInfoEndpointUri)) {
+      RestTemplate restTemplate = new RestTemplate();
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken()
+          .getTokenValue());
+      HttpEntity entity = new HttpEntity("", headers);
+      ResponseEntity<Map> responseEntity =
+          restTemplate.exchange(userInfoEndpointUri, HttpMethod.GET, entity, Map.class);
+      Map userAttributes = responseEntity.getBody();
+      return userAttributes.get("name").toString();
+    } else {
+      return "";
+    }
   }
 }
