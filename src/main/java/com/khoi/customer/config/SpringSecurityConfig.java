@@ -42,7 +42,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest()
         .authenticated()
         .and()
-        .oauth2Login();
+        .oauth2Login()
+        .defaultSuccessUrl("/customer/successful");
+
         //needed if customize login page
         /*.loginPage("/customer/login/oauth2/client/google")
         .authorizationEndpoint()

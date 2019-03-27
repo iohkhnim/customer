@@ -9,8 +9,12 @@ import com.khoi.customer.dto.UserTransfer;
 import com.khoi.customer.service.ICustomerService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +25,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.RestTemplate;
 
 @org.springframework.stereotype.Controller
 @RequestMapping("customer")
@@ -42,6 +51,9 @@ public class Controller {
   @Autowired
   @Qualifier("customUserDetailsService")
   private UserDetailsService customUserDetailsService;
+
+  @Autowired
+  private OAuth2AuthorizedClientService authorizedClientService;
 
   /**
    * <p>An API endpoint (/customer/create) with method POST for creating Customer</p>
@@ -191,6 +203,31 @@ public class Controller {
     } catch (Exception e) {
       return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
     }
+  }
+
+  @GetMapping("successful")
+  public ResponseEntity<String> successfulLoginWithGoogle(
+      OAuth2AuthenticationToken authenticationToken) {
+    OAuth2AuthorizedClient client = authorizedClientService
+        .loadAuthorizedClient(authenticationToken.getAuthorizedClientRegistrationId(),
+            authenticationToken.getName());
+
+    String userInfoEndpointUri = client.getClientRegistration().getProviderDetails()
+        .getUserInfoEndpoint().getUri();
+
+    if (!StringUtils.isEmpty(userInfoEndpointUri)) {
+      RestTemplate restTemplate = new RestTemplate();
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken()
+          .getTokenValue());
+      HttpEntity entity = new HttpEntity("", headers);
+      ResponseEntity<Map> responseEntity =
+          restTemplate.exchange(userInfoEndpointUri, HttpMethod.GET, entity, Map.class);
+      Map userAttributes = responseEntity.getBody();
+      return new ResponseEntity<>("Hello " + userAttributes.get("name").toString(), HttpStatus.OK);
+    }
+
+    return new ResponseEntity<>("", HttpStatus.OK);
   }
 
   /*@GetMapping("login/oauth/client/google")
