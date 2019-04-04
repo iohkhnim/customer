@@ -14,9 +14,9 @@ import java.io.File;
 @Configuration
 public class ApplicationConfig {
 
-  private final String orderServiceEndpoint = "localhost:6585";
+  private final String orderServiceEndpoint = "172.17.0.6:6565";
 
-  private final String orderServerKeyPath = "src/main/java/com/khoi/customer/key/ca.crt";
+  private final String orderServerKeyPath = "key/order.crt";
   /**
    * Create a channel to communicate with gRPC server
    *
