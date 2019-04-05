@@ -6,6 +6,7 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,9 +15,11 @@ import java.io.File;
 @Configuration
 public class ApplicationConfig {
 
-  private final String orderServiceEndpoint = "172.17.0.6:6565";
+  @Value("${orderServiceEndpoint}")
+  private String orderServiceEndpoint;
 
-  private final String orderServerKeyPath = "key/order.crt";
+  @Value("${orderServerKeyPath}")
+  private String orderServerKeyPath;
   /**
    * Create a channel to communicate with gRPC server
    *
