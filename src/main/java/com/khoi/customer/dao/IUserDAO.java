@@ -19,4 +19,5 @@ public interface IUserDAO extends IBaseDAO<User, Integer> {
    * @return id of that username
    */
   int getCustomerIdByUsername(String username);
+
 }

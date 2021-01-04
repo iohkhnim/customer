@@ -20,6 +20,9 @@ public class User extends baseDTO implements Serializable {
   @Column(name = "password")
   private String password;
 
+  @Column(name = "role")
+  private int role;
+
   @Column(name = "customer_id")
   private int customer_id;
 
@@ -57,5 +60,13 @@ public class User extends baseDTO implements Serializable {
   public void setGrantedAuthoritiesList(
       Collection<GrantedAuthority> grantedAuthoritiesList) {
     this.grantedAuthoritiesList = grantedAuthoritiesList;
+  }
+
+  public int getRole() {
+    return role;
+  }
+
+  public void setRole(int role) {
+    this.role = role;
   }
 }

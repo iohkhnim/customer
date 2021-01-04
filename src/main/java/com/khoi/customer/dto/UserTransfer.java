@@ -41,6 +41,5 @@ public class UserTransfer {
     public HttpStatus getStatus() {
         return this.status;
     }
-
 }
 

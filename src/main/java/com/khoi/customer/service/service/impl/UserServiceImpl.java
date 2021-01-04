@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +19,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
   @Autowired
   private IUserDAO userDAO;
 
+  @Autowired
+  BCryptPasswordEncoder bCryptPasswordEncoder;
 
   public User getUserDetails(String username) {
     Collection<GrantedAuthority> grantedAuthoritiesList = new ArrayList<>();
@@ -26,7 +29,15 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
     if (user == null) {
       throw new UsernameNotFoundException("User not found");
     }
-    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_USER");
+    GrantedAuthority grantedAuthority = null;
+    if(user.getRole() == 0)
+      grantedAuthority = new SimpleGrantedAuthority("0"); //admin
+    if(user.getRole() == 1)
+      grantedAuthority = new SimpleGrantedAuthority("1"); // seller
+    if(user.getRole() == 2)
+      grantedAuthority = new SimpleGrantedAuthority("2"); //stocker
+    if(user.getRole() == 3)
+      grantedAuthority = new SimpleGrantedAuthority("3");//customer
     grantedAuthoritiesList.add(grantedAuthority);
     user.setGrantedAuthoritiesList(grantedAuthoritiesList);
     return user;
@@ -38,5 +49,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
   @Override
   public int getCustomerIdByUsername(String username) {
     return userDAO.getCustomerIdByUsername(username);
+  }
+
+  @Override
+  public int create(User user) {
+    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+    return userDAO.create(user);
   }
 }

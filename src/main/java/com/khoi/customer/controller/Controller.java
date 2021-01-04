@@ -1,14 +1,9 @@
 package com.khoi.customer.controller;
 
-import com.khoi.customer.config.TokenUtil;
-import com.khoi.customer.dto.Checkout;
-import com.khoi.customer.dto.Customer;
-import com.khoi.customer.dto.LoginData;
-import com.khoi.customer.dto.TrackingOrderDetails;
-import com.khoi.customer.dto.UserTransfer;
+import com.khoi.customer.dto.*;
 import com.khoi.customer.service.ICustomerService;
-import java.util.ArrayList;
-import java.util.List;
+import com.khoi.customer.service.IUserService;
+import com.khoi.customer.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -23,46 +18,46 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @org.springframework.stereotype.Controller
 @RequestMapping("customer")
 public class Controller {
 
-  @Autowired
-  ICustomerService customerService;
+  @Autowired ICustomerService customerService;
 
-  @Autowired
-  private AuthenticationManager authenticationManager;
+  @Autowired private AuthenticationManager authenticationManager;
+
+  @Autowired private IUserService userService;
 
   @Autowired
   @Qualifier("customUserDetailsService")
   private UserDetailsService customUserDetailsService;
 
+  @Autowired
+  JwtService jwtService;
+
   /**
-   * <p>An API endpoint (/customer/create) with method POST for creating Customer</p>
+   * An API endpoint (/customer/create) with method POST for creating Customer
    *
    * @param customer Information of the new customer in Customer type
    * @return Http status
    */
   @PostMapping("create")
-  public ResponseEntity<Void> create(@RequestBody Customer customer) {
-    Boolean flag = customerService.create(customer);
-    if (flag.equals(true)) {
-      return new ResponseEntity<Void>(HttpStatus.CREATED);
+  public ResponseEntity<String> create(@RequestBody Customer customer) {
+    int id = customerService.create(customer);
+    if (id != 0) {
+      return new ResponseEntity<String>(String.valueOf(id), HttpStatus.CREATED);
     } else {
-      return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+      return new ResponseEntity<String>(String.valueOf(id), HttpStatus.CONFLICT);
     }
   }
 
   /**
-   * <p>An API endpoint (/customer/update) with method PUT for updating Customer</p>
+   * An API endpoint (/customer/update) with method PUT for updating Customer
    *
    * @param customer Information of the customer to be updated in Customer type
    * @return Http status
@@ -78,8 +73,8 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/findById/{id}) with method GET for getting Customer information
-   * of provided customer ID</p>
+   * An API endpoint (/customer/findById/{id}) with method GET for getting Customer information of
+   * provided customer ID
    *
    * @param id Information of the customer to be updated in Customer type
    * @return Customer information in JSON
@@ -91,8 +86,7 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/findAll) with method GET for getting all Customers information
-   * </p>
+   * An API endpoint (/customer/findAll) with method GET for getting all Customers information
    *
    * @return All customers information
    */
@@ -102,7 +96,7 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/delete/{id}) with method DELETE for deleting a customer</p>
+   * An API endpoint (/customer/delete/{id}) with method DELETE for deleting a customer
    *
    * @param id Id of the customer to be deleted
    * @return Http status
@@ -117,36 +111,37 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/checkout) with method POST for checking out an order</p>
+   * An API endpoint (/customer/checkout) with method POST for checking out an order
    *
    * @param data Contains customer ID, list of products and amount
    * @return Https status
    */
   @PostMapping("checkout")
-  public ResponseEntity<Void> checkout(@RequestBody Checkout data) {
-    if (customerService.createOrder(data)) {
-      return new ResponseEntity<Void>(HttpStatus.OK);
+  public ResponseEntity<String> checkout(@RequestBody Checkout data) {
+    int orderId = customerService.createOrder(data);
+    if (orderId > 0) {
+      return new ResponseEntity<String>(String.valueOf(orderId), HttpStatus.OK);
     } else {
-      return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+      return new ResponseEntity<String>("Error", HttpStatus.CONFLICT);
     }
   }
 
   /**
-   * <p>An API endpoint (/customer/orders) with method GET for getting all orders information of
-   * currently logged in customer</p>
+   * An API endpoint (/customer/orders) with method GET for getting all orders information of
+   * currently logged in customer
    *
    * @return All orders information of logged in customer
    */
   @GetMapping("orders")
   public ResponseEntity<List<String>> getOrders() {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    return new ResponseEntity<List<String>>(customerService.trackingOrders(username),
-        HttpStatus.OK);
+    return new ResponseEntity<List<String>>(
+        customerService.trackingOrders(username), HttpStatus.OK);
   }
 
   /**
-   * <p>An API endpoint (/customer/order/{order-id}) with method GET for getting a order
-   * information and all order items belong to that order of currently logged in customer</p>
+   * An API endpoint (/customer/order/{order-id}) with method GET for getting a order information
+   * and all order items belong to that order of currently logged in customer
    *
    * @param order_id ID of an order placed by logged customer
    * @return An order information and all order items belong to it of logged in customer
@@ -155,13 +150,23 @@ public class Controller {
   public ResponseEntity<TrackingOrderDetails> trackingOrderDetails(
       @PathVariable("order_id") int order_id) {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
     return new ResponseEntity<TrackingOrderDetails>(
-        customerService.trackingOrderDetails(username, order_id), HttpStatus.OK);
+        customerService.trackingOrderDetails(username, order_id, role), HttpStatus.OK);
+  }
+
+  @PostMapping("register")
+  public ResponseEntity<String> register(@RequestBody User user) {
+    int id = userService.create(user);
+    if (id != 0) {
+      return new ResponseEntity<String>(String.valueOf(id), HttpStatus.CREATED);
+    } else {
+      return new ResponseEntity<String>(String.valueOf(id), HttpStatus.CONFLICT);
+    }
   }
 
   /**
-   * <p>An API endpoint (/customer/login) with method POST for validating given username and
-   * password</p>
+   * An API endpoint (/customer/login) with method POST for validating given username and password
    *
    * @param loginData Contain username and password provided by customer
    * @return An access token
@@ -172,10 +177,11 @@ public class Controller {
       String username = loginData.getUsername();
       String password = loginData.getPassword();
 
-      UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,
-          password);
+      UsernamePasswordAuthenticationToken token =
+          new UsernamePasswordAuthenticationToken(username, password);
       Authentication authentication = this.authenticationManager.authenticate(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
+      // CustomUser customUser = this.customUserDetailsService.loadUserByUsername(username);
       UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
 
       List<String> roles = new ArrayList<>();
@@ -184,8 +190,10 @@ public class Controller {
         roles.add(authority.toString());
       }
 
-      return new ResponseEntity<UserTransfer>(new UserTransfer(userDetails.getUsername(), roles,
-          TokenUtil.createToken(userDetails), HttpStatus.OK), HttpStatus.OK);
+      return new ResponseEntity<UserTransfer>(
+          new UserTransfer(
+              userDetails.getUsername(), roles, jwtService.generateTokeLogin(userDetails.getUsername()), HttpStatus.OK),
+          HttpStatus.OK);
 
     } catch (BadCredentialsException bce) {
       return new ResponseEntity<UserTransfer>(new UserTransfer(), HttpStatus.NO_CONTENT);
@@ -196,8 +204,9 @@ public class Controller {
   }
 
   /**
-   * <p>An API endpoint (/customer/successful) with method GET. When user successfully log in with
-   * Google is redirected here</p>
+   * An API endpoint (/customer/successful) with method GET. When user successfully log in with
+   * Google is redirected here
+   *
    * @param authenticationToken Access token given by Google
    */
   @GetMapping("successful")
@@ -212,10 +221,16 @@ public class Controller {
     }
   }
 
-  /*@GetMapping("login/oauth/client/google")
+  /* @GetMapping("login/oauth/client/google")
   public ResponseEntity<String> loginWithGoogle(
       @RequestBody OAuth2AuthenticationToken authenticationToken) {
     String name = authenticationToken.getName();
     return new ResponseEntity<>(name, HttpStatus.OK);
+  }*/
+
+  /* logout code
+  Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+  if(auth!= null) {
+    new SecurityContextLogoutHandler().logout(null,null,auth);
   }*/
 }

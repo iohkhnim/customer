@@ -13,7 +13,7 @@ public interface ICustomerService extends IBaseService<Customer, Integer> {
    * @param checkout Contains customer id and list of products
    * @return A boolean value according to the result of creating this order
    */
-  Boolean createOrder(Checkout checkout);
+  int createOrder(Checkout checkout);
 
   /**
    * @param username Username of currently logged in customer
@@ -30,7 +30,7 @@ public interface ICustomerService extends IBaseService<Customer, Integer> {
    * @return An order with information that match provided order id and all the order items belong
    * to that order
    */
-  TrackingOrderDetails trackingOrderDetails(String username, int order_id);
+  TrackingOrderDetails trackingOrderDetails(String username, int order_id, String role);
 
   /**
    * <p>This method gets user's name from user information endpoint given by Google</p>

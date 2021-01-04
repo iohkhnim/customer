@@ -2,6 +2,7 @@ package com.khoi.customer.config;
 
 import com.khoi.orderproto.OrderServiceGrpc;
 import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -31,6 +32,7 @@ public class ApplicationConfig {
         .negotiationType(NegotiationType.TLS)
         .sslContext(GrpcSslContexts.forClient().trustManager(new File(orderServerKeyPath)).build())
         .build();
+    // return ManagedChannelBuilder.forTarget(orderServiceEndpoint).usePlaintext().build();
   }
 
   /**

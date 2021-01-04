@@ -3,7 +3,11 @@ package com.khoi.customer.dao.dao.impl;
 import com.khoi.basecrud.dao.dao.impl.BaseDAOImpl;
 import com.khoi.customer.dao.IUserDAO;
 import com.khoi.customer.dto.User;
+
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserDAOImpl extends BaseDAOImpl<User, Integer> implements IUserDAO {
 
+  @Autowired
+  protected EntityManager entityManager;
   /**
    * {@inheritDoc}
    */

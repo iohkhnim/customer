@@ -8,19 +8,7 @@ import com.khoi.customer.dto.Customer;
 import com.khoi.customer.dto.TrackingOrderDetails;
 import com.khoi.customer.service.ICustomerService;
 import com.khoi.customer.service.IUserService;
-import com.khoi.orderproto.CheckoutDataProto;
-import com.khoi.orderproto.CreateOrderRequest;
-import com.khoi.orderproto.CreateOrderResponse;
-import com.khoi.orderproto.GetOrdersRequest;
-import com.khoi.orderproto.GetOrdersResponse;
-import com.khoi.orderproto.OrderServiceGrpc;
-import com.khoi.orderproto.TrackingOrderDetailsRequest;
-import com.khoi.orderproto.TrackingOrderDetailsResponse;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.khoi.orderproto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
@@ -34,16 +22,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     implements ICustomerService {
 
   @Qualifier("orderService")
   private final OrderServiceGrpc.OrderServiceBlockingStub orderService;
-  @Autowired
-  private IUserService userService;
-  @Autowired
-  private OAuth2AuthorizedClientService authorizedClientService;
+
+  @Autowired private IUserService userService;
+  @Autowired private OAuth2AuthorizedClientService authorizedClientService;
 
   public CustomerServiceImpl(OrderServiceGrpc.OrderServiceBlockingStub orderService) {
     this.orderService = orderService;
@@ -63,22 +56,25 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     };
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public TrackingOrderDetails trackingOrderDetails(String username, int order_id) {
+  public TrackingOrderDetails trackingOrderDetails(String username, int order_id, String role) {
     int customer_id = userService.getCustomerIdByUsername(username);
-    TrackingOrderDetailsResponse response = orderService.trackingOrderDetails(
-        TrackingOrderDetailsRequest.newBuilder().setCustomerId(customer_id).setOrderId(order_id)
-            .build());
+    TrackingOrderDetailsResponse response =
+        orderService.trackingOrderDetails(
+            TrackingOrderDetailsRequest.newBuilder()
+                .setCustomerId(customer_id)
+                .setOrderId(order_id)
+                .setRole(role)
+                .build());
     if (response.getOrder() != null && response.getOrderItem(0) != null) {
-      //map TrackingOrderDetails and TrackingOrderDetailsResponse
+      // map TrackingOrderDetails and TrackingOrderDetailsResponse
       TrackingOrderDetails trackingOrderDetails = new TrackingOrderDetails();
       trackingOrderDetails.setOrder(new JsonFormat().printToString(response.getOrder()));
-      List<String> list = response.getOrderItemList().stream()
-          .map(s -> new JsonFormat().printToString(s)).collect(
-              Collectors.toList());
+      List<String> list =
+          response.getOrderItemList().stream()
+              .map(s -> new JsonFormat().printToString(s))
+              .collect(Collectors.toList());
       trackingOrderDetails.setOrderDetails(list);
       return trackingOrderDetails;
     } else {
@@ -86,11 +82,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public Boolean createOrder(Checkout checkout) {
+  public int createOrder(Checkout checkout) {
     List<CheckoutData> list = checkout.getProducts();
     List<CheckoutDataProto> checkoutDataProtos = new ArrayList<>();
 
@@ -106,50 +100,49 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     CreateOrderResponse rs =
         orderService.createOrder(
             CreateOrderRequest.newBuilder()
-                .setCustomerId(checkout.getCustomer_id())
+                .setCustomerId(userService.getCustomerIdByUsername(checkout.getUsername()))
+                .setAddress(checkout.getAddress())
                 .addAllCheckoutDataProto(checkoutDataProtos)
                 .build());
-    return rs.getOrderId() > 0;
+    return rs.getOrderId();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public List<String> trackingOrders(String username) {
     int customer_id = userService.getCustomerIdByUsername(username);
 
     List<GetOrdersResponse> ordersResponsesList = new ArrayList<>();
 
-    //get order list
-    Iterable<GetOrdersResponse> iterableResponse = toIterable(orderService
-        .getOrders(GetOrdersRequest.newBuilder().setCustomerId(customer_id).build()));
+    // get order list
+    Iterable<GetOrdersResponse> iterableResponse =
+        toIterable(
+            orderService.getOrders(
+                GetOrdersRequest.newBuilder().setCustomerId(customer_id).build()));
 
     iterableResponse.forEach(ordersResponsesList::add);
 
-    List<String> ordersResponseStringList = ordersResponsesList.stream()
-        .map(s -> new JsonFormat().printToString(s)).collect(
-            Collectors.toList());
+    List<String> ordersResponseStringList =
+        ordersResponsesList.stream()
+            .map(s -> new JsonFormat().printToString(s))
+            .collect(Collectors.toList());
     return ordersResponseStringList;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String getNameWhenLoginWithGoogle(OAuth2AuthenticationToken authenticationToken) {
-    OAuth2AuthorizedClient client = authorizedClientService
-        .loadAuthorizedClient(authenticationToken.getAuthorizedClientRegistrationId(),
-            authenticationToken.getName());
+    OAuth2AuthorizedClient client =
+        authorizedClientService.loadAuthorizedClient(
+            authenticationToken.getAuthorizedClientRegistrationId(), authenticationToken.getName());
 
-    String userInfoEndpointUri = client.getClientRegistration().getProviderDetails()
-        .getUserInfoEndpoint().getUri();
+    String userInfoEndpointUri =
+        client.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri();
 
     if (!StringUtils.isEmpty(userInfoEndpointUri)) {
       RestTemplate restTemplate = new RestTemplate();
       HttpHeaders headers = new HttpHeaders();
-      headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken()
-          .getTokenValue());
+      headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken().getTokenValue());
       HttpEntity entity = new HttpEntity("", headers);
       ResponseEntity<Map> responseEntity =
           restTemplate.exchange(userInfoEndpointUri, HttpMethod.GET, entity, Map.class);

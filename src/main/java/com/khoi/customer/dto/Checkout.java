@@ -4,14 +4,6 @@ import java.util.List;
 
 public class Checkout {
 
-  public int getCustomer_id() {
-    return customer_id;
-  }
-
-  public void setCustomer_id(int customer_id) {
-    this.customer_id = customer_id;
-  }
-
   public List<CheckoutData> getProducts() {
     return products;
   }
@@ -20,6 +12,26 @@ public class Checkout {
     this.products = products;
   }
 
-  private int customer_id;
+  private String username;
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  private String address;
+
+  public String getUsername() {
+    return username;
+  }
+
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   private List<CheckoutData> products;
 }
