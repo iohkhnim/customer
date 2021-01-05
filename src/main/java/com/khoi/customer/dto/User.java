@@ -11,7 +11,7 @@ import javax.persistence.Transient;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
-@Table(name = "user")
+@Table(name = "my_user")
 public class User extends baseDTO implements Serializable {
 
   @Column(name = "username")

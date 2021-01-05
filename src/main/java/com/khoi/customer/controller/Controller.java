@@ -202,35 +202,4 @@ public class Controller {
       return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
     }
   }
-
-  /**
-   * An API endpoint (/customer/successful) with method GET. When user successfully log in with
-   * Google is redirected here
-   *
-   * @param authenticationToken Access token given by Google
-   */
-  @GetMapping("successful")
-  public ResponseEntity<String> getNameWhenLoginWithGoogle(
-      OAuth2AuthenticationToken authenticationToken) {
-
-    String name = customerService.getNameWhenLoginWithGoogle(authenticationToken);
-    if (!StringUtils.isEmpty(name)) {
-      return new ResponseEntity<>("Hello " + name, HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-    }
-  }
-
-  /* @GetMapping("login/oauth/client/google")
-  public ResponseEntity<String> loginWithGoogle(
-      @RequestBody OAuth2AuthenticationToken authenticationToken) {
-    String name = authenticationToken.getName();
-    return new ResponseEntity<>(name, HttpStatus.OK);
-  }*/
-
-  /* logout code
-  Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-  if(auth!= null) {
-    new SecurityContextLogoutHandler().logout(null,null,auth);
-  }*/
 }

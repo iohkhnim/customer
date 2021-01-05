@@ -37,5 +37,5 @@ public interface ICustomerService extends IBaseService<Customer, Integer> {
    * @param authenticationToken Access token given by Google
    * @return Return user's name
    */
-  String getNameWhenLoginWithGoogle(OAuth2AuthenticationToken authenticationToken);
+  // String getNameWhenLoginWithGoogle(OAuth2AuthenticationToken authenticationToken);
 }

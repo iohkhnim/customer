@@ -36,7 +36,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   private final OrderServiceGrpc.OrderServiceBlockingStub orderService;
 
   @Autowired private IUserService userService;
-  @Autowired private OAuth2AuthorizedClientService authorizedClientService;
 
   public CustomerServiceImpl(OrderServiceGrpc.OrderServiceBlockingStub orderService) {
     this.orderService = orderService;
@@ -130,7 +129,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
   }
 
   /** {@inheritDoc} */
-  @Override
+ /* @Override
   public String getNameWhenLoginWithGoogle(OAuth2AuthenticationToken authenticationToken) {
     OAuth2AuthorizedClient client =
         authorizedClientService.loadAuthorizedClient(
@@ -151,5 +150,5 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, Integer>
     } else {
       return "";
     }
-  }
+  }*/
 }

@@ -80,25 +80,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         .addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling()
         .accessDeniedHandler(customAccessDeniedHandler());
-
-    /*http.csrf()
-        .disable()
-        .authorizeRequests()
-        .antMatchers("/", "/customer/login", "/customer/register", "/customer/create")
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-        .and()
-        .addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling()
-        .accessDeniedHandler(customAccessDeniedHandler());
-       .and()
-        .oauth2Login()
-        .defaultSuccessUrl("/customer/successful");
-
-    http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
-
-    http.logout().logoutSuccessUrl("/login");*/
   }
 
   @Override
@@ -112,11 +93,4 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
   public BCryptPasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
-  /*@Bean
-  public AuthorizationRequestRepository<OAuth2AuthorizationRequest>
-      authorizationRequestRepository() {
-
-    return new HttpSessionOAuth2AuthorizationRequestRepository();
-  }*/
 }
